@@ -2,9 +2,25 @@ import React, { useContext } from "react";
 import FilterBy from "./FilterBy";
 import ThemeContext from "../contexts/ThemeContext";
 import { FaMagnifyingGlass } from "react-icons/fa6";
+import SortSection from "./SortSection";
 
-const SearchSection = ({ regions, region, setRegion, setSearchValue }) => {
+const SearchSection = ({
+  regions,
+  region,
+  setRegion,
+
+  subRegions,
+  subRegion,
+  setSubRegion,
+
+  setSearchValue,
+
+  sortCriteria,
+  setSortCriteria,
+}) => {
   let theme = useContext(ThemeContext);
+  console.log(regions);
+
   return (
     <section
       className={`search-filter-section min-w-80 max-w-7xl mx-auto sm:flex sm:justify-between mt-4 "
@@ -27,9 +43,21 @@ const SearchSection = ({ regions, region, setRegion, setSearchValue }) => {
       </div>
       <FilterBy
         filterName={"filter by region"}
-        regions={regions}
-        region={region}
-        setRegion={setRegion}
+        lists={regions}
+        item={region}
+        set={setRegion}
+        zIndex={"z-50"}
+      />
+      <FilterBy
+        filterName={"filter by subregion"}
+        lists={subRegions}
+        item={subRegion}
+        set={setSubRegion}
+        zIndex={"z-40"}
+      />
+      <SortSection
+        sortCriteria={sortCriteria}
+        setSortCriteria={setSortCriteria}
       />
     </section>
   );

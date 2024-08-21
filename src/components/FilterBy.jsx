@@ -2,16 +2,18 @@ import React, { useContext, useState } from "react";
 import ThemeContext from "../contexts/ThemeContext";
 import { FaAngleUp, FaAngleDown } from "react-icons/fa";
 
-const FilterBy = ({ filterName, regions = [], region, setRegion, icon }) => {
+const FilterBy = ({ filterName, lists = [], item, set, zIndex }) => {
   let theme = useContext(ThemeContext);
   let [showList, setShowList] = useState(false);
+  // console.log(regions,region);
+  
   return (
     <div
-      className="sm:flex sm:justify-end relative"
+      className={`sm:flex sm:justify-end relative ${zIndex}`}
       onClick={(e) => {
         setShowList((prevState) => !prevState);
         if (e.target.closest("li")) {
-          setRegion(e.target.closest("li").textContent);
+          set(e.target.closest("li").textContent);
         }
       }}
     >
@@ -22,7 +24,7 @@ const FilterBy = ({ filterName, regions = [], region, setRegion, icon }) => {
         }`}
       >
         <span className="mr-4 px-8 capitalize">
-          {region === "all" ? filterName : region}
+          {item === "all" ? filterName : item}
         </span>
         <span className="mr-4">
           {!showList ? <FaAngleDown /> : <FaAngleUp />}
@@ -30,12 +32,12 @@ const FilterBy = ({ filterName, regions = [], region, setRegion, icon }) => {
 
         {showList && (
           <ul
-            className={`absolute left-0 top-16 bg-white rounded-lg w-full text-center border-2 ${
+            className={`absolute left-0 top-16 bg-white rounded-lg w-full text-center shadow-lg ${
               theme === "dark" && "bg-slate-800 text-white border-0"
             }`}
           >
-            {regions.map((item, index) => (
-              <li className="hover:font-bold py-4 cursor-pointer" key={index}>
+            {lists.map((item, index) => (
+              <li className={`hover:font-bold py-4 cursor-pointer ${theme === 'dark' && 'bg-slate-800 border-0'}`} key={index}>
                 {item}
               </li>
             ))}
