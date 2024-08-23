@@ -97,6 +97,10 @@ const HomePage = () => {
     }
   }, [searchValue, region, subRegion, sortCriteria]);
 
+  useEffect(()=>{
+    setSubRegion('all');
+  },[region])
+
   function filterCountriesBy(searchValue, region, subRegion) {
     return allCountries.filter(
       (country) =>

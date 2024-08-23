@@ -19,7 +19,7 @@ const SearchSection = ({
   setSortCriteria,
 }) => {
   let theme = useContext(ThemeContext);
-  console.log(regions);
+  // console.log(regions);
 
   return (
     <section
