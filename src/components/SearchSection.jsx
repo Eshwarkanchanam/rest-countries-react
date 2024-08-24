@@ -7,19 +7,19 @@ import SortSection from "./SortSection";
 const SearchSection = ({
   regions,
   region,
-  setRegion,
 
   subRegions,
   subRegion,
-  setSubRegion,
-
-  setSearchValue,
 
   sortCriteria,
   setSortCriteria,
+
+  handleSearch,
+  handleRegion,
+  handleSubRegion
+
 }) => {
   let theme = useContext(ThemeContext);
-  // console.log(regions);
 
   return (
     <section
@@ -38,21 +38,21 @@ const SearchSection = ({
           className={`outline-none m-2 ${theme === "dark" && "bg-slate-800"}`}
           placeholder="Search for country..."
           id="search-input"
-          onChange={(e) => setSearchValue(e.target.value)}
+          onChange={handleSearch}
         />
       </div>
       <FilterBy
         filterName={"filter by region"}
         lists={regions}
         item={region}
-        set={setRegion}
+        handleFilter={handleRegion}
         zIndex={"z-50"}
       />
       <FilterBy
         filterName={"filter by subregion"}
         lists={subRegions}
         item={subRegion}
-        set={setSubRegion}
+        handleFilter={handleSubRegion}
         zIndex={"z-40"}
       />
       <SortSection

@@ -2,19 +2,26 @@ import React, { useContext, useState } from "react";
 import ThemeContext from "../contexts/ThemeContext";
 import { FaAngleUp, FaAngleDown } from "react-icons/fa";
 
-const FilterBy = ({ filterName, lists = [], item, set, zIndex }) => {
+const FilterBy = ({
+  filterName,
+  lists = [],
+  item,
+  zIndex,
+  handleFilter,
+}) => {
   let theme = useContext(ThemeContext);
   let [showList, setShowList] = useState(false);
   // console.log(regions,region);
-  
+
   return (
     <div
       className={`sm:flex sm:justify-end relative ${zIndex}`}
       onClick={(e) => {
         setShowList((prevState) => !prevState);
-        if (e.target.closest("li")) {
-          set(e.target.closest("li").textContent);
-        }
+        // if (e.target.closest("li")) {
+        //   set(e.target.closest("li").textContent);
+        // }
+        handleFilter(e);
       }}
     >
       <div
@@ -36,8 +43,13 @@ const FilterBy = ({ filterName, lists = [], item, set, zIndex }) => {
               theme === "dark" && "bg-slate-800 text-white border-0"
             }`}
           >
-            {lists.map((item, index) => (
-              <li className={`hover:font-bold py-4 cursor-pointer ${theme === 'dark' && 'bg-slate-800 border-0'}`} key={index}>
+            {Array.from(lists).map((item, index) => (
+              <li
+                className={`hover:font-bold py-4 cursor-pointer ${
+                  theme === "dark" && "bg-slate-800 border-0"
+                }`}
+                key={index}
+              >
                 {item}
               </li>
             ))}

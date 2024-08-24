@@ -6,71 +6,85 @@ import CountryCards from "./CountryCards";
 
 const HomePage = () => {
   let [allCountries, setAllCountries] = useState([]);
-  let [filteredCountries, setFilteredCountries] = useState([]);
   let [searchValue, setSearchValue] = useState("");
-  let [regions, setRegions] = useState([]);
   let [region, setRegion] = useState("all");
-  let [subRegions, setSubRegions] = useState([]);
   let [subRegion, setSubRegion] = useState("all");
   let [sortCriteria, setSortCriteria] = useState("");
-  let [isLoading, setIsLoading] = useState(true);
+  let [isLoading, setIsLoading] = useState(false);
   let [isNetworkError, setIsNetworkError] = useState(false);
-  let regionsRef = useRef(null);
+
   useEffect(() => {
     (async () => {
       try {
+        setIsLoading(true);
         let allCountries = await fetchAllCountries();
         setAllCountries(allCountries);
-        setFilteredCountries(allCountries);
-        regionsRef.current = getRegions();
-
-        function getRegions() {
-          return allCountries.reduce(
-            (regions, country) => {
-              if (regions[country.region] === undefined) {
-                regions[country.region] = ["all"];
-              }
-              if (
-                country.subregion &&
-                !regions[country.region].includes(country.subregion)
-              ) {
-                regions[country.region].push(country.subregion);
-              }
-              if (!regions.allRegions.includes(country.region)) {
-                regions.allRegions.push(country.region);
-              }
-              if (
-                country.subregion &&
-                !regions.allSubregions.includes(country.subregion)
-              ) {
-                regions.allSubregions.push(country.subregion);
-              }
-              return regions;
-            },
-            {
-              allRegions: ["all"],
-              allSubregions: ["all"],
-            }
-          );
-        }
-
-        setRegions(regionsRef.current.allRegions);
-        setSubRegions(regionsRef.current.allSubregions);
-
         setIsLoading(false);
         setIsNetworkError(false);
       } catch (error) {
         setIsNetworkError(true);
         console.error(error);
+      } finally {
+        setIsLoading(false);
       }
     })();
   }, []);
 
-  useEffect(() => {
-    let filteredCountries = filterCountriesBy(searchValue, region, subRegion);
+  function handleSearch(e) {
+    setSearchValue(e.target.value.trim());
+  }
 
-    if (sortCriteria) {
-      filteredCountries = filteredCountries.sort((a, b) => {
+  
+  function handleRegion(e) {
+    if (e.target.closest("li")) {
+      console.log(e.target.closest("li").textContent);
+      
+      setRegion(e.target.closest("li").textContent);
+      setSubRegion("all");
+    }
+  }
+  
+  function handleSubRegion(e) {
+    if (e.target.closest("li")) {
+      setSubRegion(e.target.closest("li").textContent);
+    }
+  }
+  
+  let regions = allCountries.reduce((regions, country) => {
+    regions.add(country.region);
+    return regions;
+  }, new Set(["all"]));
+  
+  let subRegions = getSubRegionsByRegion();
+  
+  let filteredCountries = filterCountriesBy(searchValue, region, subRegion);
+  
+  function getSubRegionsByRegion() {
+    return allCountries.reduce((subRegions, country) => {
+      if (
+        country.subregion &&
+        (region === "all" || region.toLowerCase() === country.region.toLowerCase())
+      ) {
+        subRegions.add(country.subregion);
+      }
+      return subRegions;
+    }, new Set(["all"]));
+  }
+  
+  function filterCountriesBy(searchValue, region, subRegion) {
+    return allCountries
+      .filter(
+        (country) =>
+          country.name.common
+            .toLowerCase()
+            .indexOf(searchValue.toLowerCase()) !== -1 &&
+          (region === "all" ||
+            region.toLowerCase() === country.region.toLowerCase()) &&
+          (subRegion === "all" ||
+            (country.subregion &&
+              country.subregion.toLowerCase() === subRegion.toLowerCase()))
+      )
+      .sort((a, b) => {
         switch (sortCriteria) {
           case "Ascending Population":
             return a.population - b.population;
@@ -84,48 +98,19 @@ const HomePage = () => {
             return 0;
         }
       });
-    }
-
-    setFilteredCountries(filteredCountries);
-
-    if (regionsRef.current) {
-      setSubRegions(
-        region === "all"
-          ? regionsRef.current.allSubregions
-          : regionsRef.current[region]
-      );
-    }
-  }, [searchValue, region, subRegion, sortCriteria]);
-
-  useEffect(()=>{
-    setSubRegion('all');
-  },[region])
-
-  function filterCountriesBy(searchValue, region, subRegion) {
-    return allCountries.filter(
-      (country) =>
-        country.name.common.toLowerCase().indexOf(searchValue.toLowerCase()) !==
-          -1 &&
-        (region === "all" ||
-          region.toLowerCase() === country.region.toLowerCase()) &&
-        (subRegion === "all" ||
-          (country.subregion &&
-            country.subregion.toLowerCase() === subRegion.toLowerCase()))
-    );
   }
-
   return (
     <div>
       <SearchSection
-        regions={regions}
         region={region}
-        setRegion={setRegion}
-        subRegions={subRegions}
+        regions={regions}
         subRegion={subRegion}
-        setSubRegion={setSubRegion}
-        setSearchValue={setSearchValue}
+        subRegions={subRegions}
         sortCriteria={sortCriteria}
         setSortCriteria={setSortCriteria}
+        handleSearch={handleSearch}
+        handleRegion={handleRegion}
+        handleSubRegion={handleSubRegion}
       />
       {isNetworkError ? (
         <ShowMessage message={"no internet"} />
