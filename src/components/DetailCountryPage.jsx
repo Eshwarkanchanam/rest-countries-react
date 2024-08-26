@@ -4,7 +4,6 @@ import ThemeContext from "../contexts/ThemeContext";
 import ShowMessage from "./ShowMessage";
 import { Link, useParams } from "react-router-dom";
 import { fetchCountryByCCA3 } from "../functions/fetchCountryByName";
-import CountryButton from "./CountryButton";
 
 const DetailCountryPage = () => {
   let theme = useContext(ThemeContext);
@@ -12,16 +11,28 @@ const DetailCountryPage = () => {
 
   let [isLoading, setIsLoading] = useState(true);
   let [country, setCountry] = useState(null);
+  let [error, setError] = useState(false);
 
   useEffect(() => {
-    (async () => {
-      let country = await fetchCountryByCCA3(cca3);
-      console.log(country);
+    async function fetchData() {
+      try {
+        let country = await fetchCountryByCCA3(cca3);
+        // console.log(country);
 
-      setIsLoading(false);
-      setCountry(country);
-    })();
+        setCountry(country);
+        setError(false);
+      } catch (error) {
+        setError(true);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchData();
   }, [cca3]);
+
+  if (error) {
+    return <ShowMessage message={"something went wrong"} />;
+  }
 
   return isLoading ? (
     <ShowMessage message={"loading..."} />
@@ -83,7 +94,10 @@ const DetailCountryPage = () => {
               </div>
             </div>
 
-            <div id="country-tld-currencies-languages-details" className="mb-4  md:w-[50%]">
+            <div
+              id="country-tld-currencies-languages-details"
+              className="mb-4  md:w-[50%]"
+            >
               <div id="top-level-domain" className="text-lg font-semibold">
                 Top level domain :{" "}
                 <span className="font-normal">{country.tld.join(",")}</span>
@@ -107,11 +121,13 @@ const DetailCountryPage = () => {
             </div>
           </div>
           <div id="border-countries" className="text-lg font-semibold">
-            Border Countries:{" "}
+            Border Countries:
             {country.borders
               ? Object.values(country.borders).map((cca3) => (
                   <Link to={`/country/${cca3}`} key={cca3}>
-                    <CountryButton cca3={cca3}/>
+                    <button className="border-2 py-1 px-3  rounded-lg font-normal mx-1">
+                      {cca3}
+                    </button>
                   </Link>
                 ))
               : "N/A"}

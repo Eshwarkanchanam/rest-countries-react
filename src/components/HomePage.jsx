@@ -11,7 +11,7 @@ const HomePage = () => {
   let [subRegion, setSubRegion] = useState("all");
   let [sortCriteria, setSortCriteria] = useState("");
   let [isLoading, setIsLoading] = useState(false);
-  let [isNetworkError, setIsNetworkError] = useState(false);
+  let [isError, setIsError] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -20,9 +20,9 @@ const HomePage = () => {
         let allCountries = await fetchAllCountries();
         setAllCountries(allCountries);
         setIsLoading(false);
-        setIsNetworkError(false);
+        setIsError(false);
       } catch (error) {
-        setIsNetworkError(true);
+        setIsError(true);
         console.error(error);
       } finally {
         setIsLoading(false);
@@ -34,43 +34,37 @@ const HomePage = () => {
     setSearchValue(e.target.value.trim());
   }
 
-  
   function handleRegion(e) {
-    if (e.target.closest("li")) {
-      console.log(e.target.closest("li").textContent);
-      
-      setRegion(e.target.closest("li").textContent);
-      setSubRegion("all");
-    }
+    setRegion(e.target.value);
+    setSubRegion("all");
   }
-  
+
   function handleSubRegion(e) {
-    if (e.target.closest("li")) {
-      setSubRegion(e.target.closest("li").textContent);
-    }
+    setSubRegion(e.target.value);
   }
-  
+
   let regions = allCountries.reduce((regions, country) => {
     regions.add(country.region);
     return regions;
-  }, new Set(["all"]));
-  
+  }, new Set([]));
+
   let subRegions = getSubRegionsByRegion();
-  
+
   let filteredCountries = filterCountriesBy(searchValue, region, subRegion);
-  
+
   function getSubRegionsByRegion() {
     return allCountries.reduce((subRegions, country) => {
       if (
         country.subregion &&
-        (region === "all" || region.toLowerCase() === country.region.toLowerCase())
+        (region === "all" ||
+          region.toLowerCase() === country.region.toLowerCase())
       ) {
         subRegions.add(country.subregion);
       }
       return subRegions;
-    }, new Set(["all"]));
+    }, new Set([]));
   }
-  
+
   function filterCountriesBy(searchValue, region, subRegion) {
     return allCountries
       .filter(
@@ -99,6 +93,7 @@ const HomePage = () => {
         }
       });
   }
+
   return (
     <div>
       <SearchSection
@@ -112,8 +107,8 @@ const HomePage = () => {
         handleRegion={handleRegion}
         handleSubRegion={handleSubRegion}
       />
-      {isNetworkError ? (
-        <ShowMessage message={"no internet"} />
+      {isError ? (
+        <ShowMessage message={"something went wrong"} />
       ) : isLoading ? (
         <ShowMessage message={"loading..."} />
       ) : (
